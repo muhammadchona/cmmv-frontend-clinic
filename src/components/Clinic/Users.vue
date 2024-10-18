@@ -9,7 +9,13 @@
       binary-state-sort
     >
       <template v-slot:top-right>
-        <q-input outlined dense debounce="300" v-model="filter" placeholder="Pesquisa">
+        <q-input
+          outlined
+          dense
+          debounce="300"
+          v-model="filter"
+          placeholder="Pesquisa"
+        >
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -18,7 +24,12 @@
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="fullName" :props="props">
-            {{ props.row.fullName !== undefined && props.row.fullName !== null && props.row.fullName !== '' ? props.row.fullName : 'Sem Info.'
+            {{
+              props.row.fullName !== undefined &&
+              props.row.fullName !== null &&
+              props.row.fullName !== ''
+                ? props.row.fullName
+                : 'Sem Info.'
             }}
           </q-td>
           <q-td key="username" :props="props">
@@ -43,7 +54,14 @@
     </q-table>
     <div class="absolute-bottom">
       <q-page-sticky position="bottom-right" :offset="[18, 18]">
-        <q-btn size="xl" fab icon="add" @click="addUser" no-cap color="primary" />
+        <q-btn
+          size="xl"
+          fab
+          icon="add"
+          @click="addUser"
+          no-cap
+          color="primary"
+        />
       </q-page-sticky>
     </div>
     <!--q-table title="Unidade Sanitária" :data="clinicos" :columns="columns" row-key="name" binary-state-sort :filter="filter">
@@ -61,10 +79,19 @@
     </q-table-->
   </div>
   <q-dialog v-model="show_dialog" persistent>
-    <q-card style="width: 700px; max-width: 80vw;" class="q-pt-lg">
+    <q-card style="width: 700px; max-width: 80vw" class="q-pt-lg">
       <q-toolbar>
-        <q-toolbar-title class="text-subtitle1 flex-center text-width-strong">Cadastrar Utilizador</q-toolbar-title>
-        <q-btn flat v-close-popup round dense icon="close" @click="show_dialog = false" />
+        <q-toolbar-title class="text-subtitle1 flex-center text-width-strong"
+          >Cadastrar Utilizador</q-toolbar-title
+        >
+        <q-btn
+          flat
+          v-close-popup
+          round
+          dense
+          icon="close"
+          @click="show_dialog = false"
+        />
       </q-toolbar>
       <form @submit.prevent="validateUser">
         <q-card-section class="q-px-md">
@@ -75,10 +102,13 @@
               square
               outlined
               v-model="user.firstNames"
-              :rules="[ val => val.length >= 3 || 'O nome indicado é inválido']"
+              :rules="[
+                (val) => val.length >= 3 || 'O nome indicado é inválido',
+              ]"
               lazy-rules
               class="col fild-radius"
-              label="Nome" />
+              label="Nome"
+            />
           </div>
           <div class="row">
             <q-input
@@ -88,9 +118,12 @@
               square
               outlined
               v-model="user.lastNames"
-              :rules="[ val => val.length >= 2 || 'O apelido indicado é inválido']"
+              :rules="[
+                (val) => val.length >= 2 || 'O apelido indicado é inválido',
+              ]"
               lazy-rules
-              label="Apelido" />
+              label="Apelido"
+            />
           </div>
           <div class="row q-mt-md">
             <q-input
@@ -99,10 +132,14 @@
               square
               outlined
               v-model="user.username"
-              :rules="[ val => val.length >= 3 || 'O nome do utilizador indicado é inválido']"
+              :rules="[
+                (val) =>
+                  val.length >= 3 || 'O nome do utilizador indicado é inválido',
+              ]"
               lazy-rules
               class="col fild-radius"
-              label="Nome de Utilizador" />
+              label="Nome de Utilizador"
+            />
           </div>
           <div class="row">
             <q-input
@@ -113,9 +150,14 @@
               square
               class="col"
               label="Senha"
-              :rules="[ val => val.length >= 4 || 'A senha deve ter um minimo de 4 caracteres']"
+              :rules="[
+                (val) =>
+                  val.length >= 4 ||
+                  'A senha deve ter um minimo de 4 caracteres',
+              ]"
               ref="passwordRef"
-              :type="isPwd ? 'password' : 'text'">
+              :type="isPwd ? 'password' : 'text'"
+            >
               <template v-slot:append>
                 <q-icon
                   :name="isPwd ? 'visibility_off' : 'visibility'"
@@ -128,16 +170,21 @@
           </div>
           <div class="row q-mb-md" v-if="!hideFields">
             <q-select
-              dense outlined
+              dense
+              outlined
               class="col"
               v-model="user.role"
               :options="userRoles"
               transition-show="flip-up"
               transition-hide="flip-down"
               ref="roleRef"
-              :rules="[ val => ( val != null ) || ' Por favor indique o role do utilizador']"
+              :rules="[
+                (val) =>
+                  val != null || ' Por favor indique o role do utilizador',
+              ]"
               lazy-rules
-              label="Perfil *" />
+              label="Perfil *"
+            />
           </div>
           <div class="row q-mb-md" v-if="!hideFields">
             <q-select
@@ -152,13 +199,17 @@
               :disable="disableFields"
               option-value="id"
               option-label="description"
-              :rules="[ val => ( val != null ) || ' Por favor indique a província']"
+              :rules="[
+                (val) => val != null || ' Por favor indique a província',
+              ]"
               lazy-rules
-              label="Província" />
+              label="Província"
+            />
           </div>
           <div class="row q-mb-md" v-if="!hideFields">
             <q-select
-              dense outlined
+              dense
+              outlined
               class="col"
               transition-show="flip-up"
               transition-hide="flip-down"
@@ -168,13 +219,17 @@
               :disable="disableFields"
               option-value="id"
               option-label="description"
-              :rules="[ val => ( val != null) || ' Por favor indique a Distrito/Cidade']"
+              :rules="[
+                (val) => val != null || ' Por favor indique a Distrito/Cidade',
+              ]"
               lazy-rules
-              label="Distrito" />
+              label="Distrito"
+            />
           </div>
           <div class="row q-mb-md" v-if="isRoleAdm === true">
             <q-select
-              dense outlined
+              dense
+              outlined
               class="col"
               :options="displayClinics"
               v-model="user.clinic"
@@ -183,24 +238,47 @@
               ref="clinica"
               option-value="id"
               option-label="name"
-              :rules="[ val => ( val != null ) || ' Por favor indique a Clinica']"
+              :rules="[(val) => val != null || ' Por favor indique a Clinica']"
               lazy-rules
-              label="Unidade Sanitária" />
+              label="Unidade Sanitária"
+            />
           </div>
         </q-card-section>
         <q-card-actions align="right" class="q-mb-md">
-          <q-btn label="Cancelar" color="primary" @click="show_dialog = false" />
-          <q-btn type="submit" :loading="submitting" label="Submeter" color="primary" />
+          <q-btn
+            label="Cancelar"
+            color="primary"
+            @click="show_dialog = false"
+          />
+          <q-btn
+            type="submit"
+            :loading="submitting"
+            label="Submeter"
+            color="primary"
+          />
         </q-card-actions>
       </form>
     </q-card>
   </q-dialog>
   <q-dialog v-model="show_error_dialog">
-    <div v-if="listErrors.length > 0" class="q-pa-sm q-gutter-sm"
-         style="max-width: 550px; max-height: 150px;border-radius: 10px; border: 1px solid #cb4646; margin: 5px; background-color: #ead8da">
+    <div
+      v-if="listErrors.length > 0"
+      class="q-pa-sm q-gutter-sm"
+      style="
+        max-width: 550px;
+        max-height: 150px;
+        border-radius: 10px;
+        border: 1px solid #cb4646;
+        margin: 5px;
+        background-color: #ead8da;
+      "
+    >
       <ul class="list-group alert alert-danger">
-        <li class="list-group-item text-negative q-pl-xs text-weight-regular text-caption"
-            v-for="item in listErrors" :key="item">
+        <li
+          class="list-group-item text-negative q-pl-xs text-weight-regular text-caption"
+          v-for="item in listErrors"
+          :key="item"
+        >
           {{ item }}
         </li>
       </ul>
@@ -226,20 +304,19 @@ const columns = [
     name: 'fullName',
     align: 'left',
     label: 'Nome Completo',
-    field: row => row.fullName,
-    format: val => `${val}`,
-    sortable: true
+    field: (row) => row.fullName,
+    format: (val) => `${val}`,
+    sortable: true,
   },
   {
     name: 'username',
     align: 'left',
     label: 'Utilizador',
-    field: row => row.username,
-    format: val => `${val}`,
-    sortable: true
-  }
+    field: (row) => row.username,
+    format: (val) => `${val}`,
+    sortable: true,
+  },
 ];
-
 
 const user = ref({});
 const userDistrict = new DistrictUserLogin();
@@ -264,7 +341,7 @@ const disableFields = ref(false);
 const hideFields = ref(false);
 const initialDistrict = ref(0);
 const filter = ref('');
-const userRoles = ref(['Utilizador na US', 'Administrador Distrital']);
+const userRoles = ref(['Utilizador na US']);
 
 onMounted(() => {
   showloading();
@@ -283,7 +360,6 @@ const provinces = computed(() => {
   return provinceService.getAllProvinces();
 });
 
-
 const districts = computed(() => {
   if (province.value !== null) {
     return districtService.getAllByProvinceId(province.value.id);
@@ -300,9 +376,11 @@ const displayClinics = computed(() => {
   }
 });
 
-
 const isRoleAdm = computed(() => {
-  if (user.value.role === 'Utilizador na US' && localStorage.getItem('role') !== 'ROLE_USER') {
+  if (
+    user.value.role === 'Utilizador na US' &&
+    localStorage.getItem('role') !== 'ROLE_USER'
+  ) {
     return true;
   }
   return false;
@@ -325,7 +403,6 @@ const getAllClinicsByDistrictId = async (districtId) => {
 };
 
 const validateUser = () => {
-
   if (!hideFields.value) {
     provinceRef.value.validate();
     districtRef.value.validate();
@@ -336,9 +413,7 @@ const validateUser = () => {
   usernameRef.value.validate();
   passwordRef.value.validate();
 
-
   if (!hideFields.value) {
-
     if (
       !nomeRef.value.hasError &&
       !apelidoRef.value.hasError &&
@@ -350,7 +425,6 @@ const validateUser = () => {
     ) {
       submitUser();
     }
-
   } else {
     if (
       !nomeRef.value.hasError &&
@@ -360,10 +434,7 @@ const validateUser = () => {
     ) {
       submitUser();
     }
-
   }
-
-
 };
 
 const submitUser = () => {
@@ -383,25 +454,31 @@ const submitUser = () => {
     idLastUserLogin = 1;
   }
   user.value.id = idLastUserLogin;
-  usersService.postWeb(getStringUserType(user), getObjectToSend(user)).then(resp => {
-    console.log(resp.response.data);
-    show_dialog.value = false;
-    submitting.value = false;
-    alertSucess('Utilizador registrado com sucesso.');
-  })
+  usersService
+    .postWeb(getStringUserType(user), getObjectToSend(user))
+    .then((resp) => {
+      // console.log(resp.response.data);
+      show_dialog.value = false;
+      submitting.value = false;
+      alertSucess('Utilizador registrado com sucesso.');
+    });
 };
 
 const addUser = () => {
   user.value = new UserLogin();
   if (localStorage.getItem('role') === 'ROLE_USER_DISTRICT') {
     user.value.role = 'Utilizador na US';
-    district.value = District.query().with('province').find(localStorage.getItem('idLogin'));
+    district.value = District.query()
+      .with('province')
+      .find(localStorage.getItem('idLogin'));
     province.value = district.value.province;
     disableFields.value = true;
     hideFields.value = true;
   } else if (localStorage.getItem('role') === 'ROLE_USER') {
     user.value.role = 'Utilizador na US';
-    user.value.clinic = clinicService.getClinicByUse(localStorage.getItem('id_clinicUser')); // Clinic.query().with('province').with('district.province').find(localStorage.getItem('id_clinicUser'))
+    user.value.clinic = clinicService.getClinicByUse(
+      localStorage.getItem('id_clinicUser')
+    ); // Clinic.query().with('province').with('district.province').find(localStorage.getItem('id_clinicUser'))
     province.value = user.value.clinic.district.province;
     district.value = user.value.clinic.district;
     disableFields.value = true;
@@ -436,8 +513,6 @@ const getObjectToSend = (user) => {
     return '/mobilizerLogin';
   }
 };
-
-
 </script>
 <style>
 .fild-radius {

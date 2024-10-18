@@ -13,12 +13,30 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
+    "com.outsystems.plugins.filechooser": "github:OutSystems/Cordova-Plugin-FileChooser",
     "cordova-android": "^12.0.1",
+    "cordova-plugin-android-permissions": "github:NeoLSN/cordova-plugin-android-permission",
+    "cordova-plugin-file": "github:apache/cordova-plugin-file",
+    "cordova-plugin-file-opener2": "github:pwlin/cordova-plugin-file-opener2",
+    "cordova-plugin-filechooser": "github:ihadeed/cordova-filechooser",
+    "cordova-plugin-filepath": "github:hiddentao/cordova-plugin-filepath",
+    "cordova-plugin-geolocation": "github:apache/cordova-plugin-geolocation",
     "cordova-plugin-splashscreen": "github:apache/cordova-plugin-splashscreen"
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "com.outsystems.plugins.filechooser": {},
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-filepath": {},
+      "cordova-plugin-file": {
+        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
+      },
+      "cordova-plugin-filechooser": {},
+      "cordova-plugin-geolocation": {
+        "GPS_REQUIRED": "true"
+      },
+      "cordova-plugin-file-opener2": {}
     },
     "platforms": [
       "android"

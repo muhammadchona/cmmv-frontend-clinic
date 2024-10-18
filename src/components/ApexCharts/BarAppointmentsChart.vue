@@ -1,19 +1,30 @@
 <template>
-  <VueApexCharts
-    style="max-width: 100%"
-    height="500"
-    type="bar"
-    :options="chartOptions"
-    :series="series"
-  ></VueApexCharts>
+  <div class="q-pa-md">
+    <div class="q-gutter-md q-mb-md row items-center justify-end">
+      <q-btn
+        label="Baixar Relatório"
+        @click="downloadChart"
+        color="primary"
+      ></q-btn>
+    </div>
+    <VueApexCharts
+      ref="chartRef"
+      style="max-width: 100%"
+      height="500"
+      type="bar"
+      :options="chartOptions"
+      :series="series"
+    ></VueApexCharts>
+  </div>
 </template>
 
 <script setup>
 import VueApexCharts from 'vue3-apexcharts';
 import moment from 'moment';
-import { ref, computed,  onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import appointmentService from 'src/services/api/appointment/appointmentService';
-
+import DownloadFileMobile from 'src/utils/DownloadFileMobile';
+const chartRef = ref(null);
 const monthsX = [
   'JAN',
   'FEV',
@@ -53,6 +64,18 @@ const chartOptions = {
   // ApexCharts options
   chart: {
     id: 'vue-chart-bar',
+    toolbar: {
+      show: true,
+      tools: {
+        download: false, // Hide the download button
+        selection: false, // Hide the selection tool
+        zoom: true, // Show the zoom tool
+        zoomin: true, // Show the zoom in tool
+        zoomout: true, // Show the zoom out tool
+        pan: true, // Show the pan tool
+        reset: true, // Show the reset tool
+      },
+    },
   },
   colors: ['#F44336', '#13c185', '#13a6c1'],
   animations: {
@@ -174,11 +197,11 @@ const appointmentsPending = computed(() => {
 });
 
 const appointmentsDone = computed(() => {
-  return appointmentService.appointmentsDoneReports()
+  return appointmentService.appointmentsDoneReports();
 });
 
 const appointmentsConfirmed = computed(() => {
-  return appointmentService.appointmentsConfirmedReports()
+  return appointmentService.appointmentsConfirmedReports();
 });
 const series = computed(() => {
   var mapIter = mapAppointmentsPending.value.values();
@@ -212,9 +235,33 @@ const series = computed(() => {
   ];
 });
 
+const downloadChart = () => {
+  if (chartRef.value) {
+    chartRef.value.dataURI().then(({ imgURI }) => {
+      const blob = dataURItoBlob(imgURI);
+      const titleFile =
+        'BarChart' + moment(new Date()).format('DD-MM-YYYY_HHmmss');
+      DownloadFileMobile.downloadFile(titleFile, '.jpg', blob);
+    });
+  }
+};
+
+// Helper function to convert Data URL to Blob
+const dataURItoBlob = (dataURI) => {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+};
+
 onMounted(() => {
   mapAppointmentsPending.value = getAppointmentsPendingByMonth();
   mapAppointmentsDone.value = getAppointmentsDoneByMonth();
   mapAppointmentsConfirmed.value = getAppointmentsConfirmedByMonth();
+  // chartRef.value = ref.chart;
 });
 </script>

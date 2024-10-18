@@ -72,9 +72,9 @@
       <q-footer>
         <q-toolbar>
           <q-tabs v-model="tab" class="absolute-center">
-              <q-tab name="dashboard" icon="pie_chart" label="Dashboard" />
-              <q-tab name="consulta" icon="date_range" label="Consulta" />
-              <q-tab name="relatorios" icon="insights" label="Relatorios" />
+            <q-tab name="dashboard" icon="pie_chart" label="Dashboard" />
+            <q-tab name="consulta" icon="date_range" label="Consulta" />
+            <q-tab name="relatorios" icon="insights" label="Relatorios" />
           </q-tabs>
         </q-toolbar>
       </q-footer>
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount, onMounted } from 'vue';
+import { ref, onBeforeUnmount, onMounted, provide } from 'vue';
 import SyncronizingService from '../services/SyncronizingService';
 import { Notify, useQuasar } from 'quasar';
 import isOnline from 'is-online';
@@ -105,7 +105,7 @@ import ChartsByDistrict from 'components/ApexCharts/ChartsDistrict.vue';
 
 const $q = useQuasar();
 const timerToSyncronizeConst = ref(0);
-const tab = ref('consulta');
+const tab = ref('dashboard');
 const showChangePasswordScreen = ref(false);
 const username = ref('');
 const isAdmin = ref(false);
@@ -238,27 +238,29 @@ const timerToSyncronize = () => {
 onBeforeUnmount(() => {
   clearInterval(timerToSyncronizeConst.value);
 }),
-onMounted(() => {
-  getUserName();
-  isOnlineChecker(false);
-  clinicService.get(0);
-  if (localStorage.getItem('role') === 'ROLE_ADMIN') {
-    tab.value = 'configuracoes';
-    isAdmin.value = true;
-    isAdminDistrict.value = false;
-  } else if (localStorage.getItem('role') === 'ROLE_USER_DISTRICT') {
-    tab.value = 'configuracoes';
-    isAdmin.value = false;
-    isAdminDistrict.value = true;
-    getAllUtentesByDistrictId(localStorage.getItem('idLogin'));
-    getAllAppointmentsByDistrictId(localStorage.getItem('idLogin'));
-  } else if (localStorage.getItem('role') === 'ROLE_USER') {
-    isUser.value = true;
-    isAdmin.value = false;
-    isAdminDistrict.value = false;
-    timerToSyncronize();
-  }
-});
+  onMounted(() => {
+    getUserName();
+    isOnlineChecker(false);
+    clinicService.get(0);
+    if (localStorage.getItem('role') === 'ROLE_ADMIN') {
+      tab.value = 'configuracoes';
+      isAdmin.value = true;
+      isAdminDistrict.value = false;
+    } else if (localStorage.getItem('role') === 'ROLE_USER_DISTRICT') {
+      tab.value = 'configuracoes';
+      isAdmin.value = false;
+      isAdminDistrict.value = true;
+      getAllUtentesByDistrictId(localStorage.getItem('idLogin'));
+      getAllAppointmentsByDistrictId(localStorage.getItem('idLogin'));
+    } else if (localStorage.getItem('role') === 'ROLE_USER') {
+      isUser.value = true;
+      isAdmin.value = false;
+      isAdminDistrict.value = false;
+      timerToSyncronize();
+    }
+  });
+
+provide('showChangePasswordScreen', showChangePasswordScreen);
 </script>
 
 <style></style>

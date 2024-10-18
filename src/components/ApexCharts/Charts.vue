@@ -1,7 +1,7 @@
 <template>
   <div key="app-to-accept">
     <UserMessage />
-    <reportBar> </reportBar>
+    <reportBar ref="ChartDev"> </reportBar>
     <br />
     <div class="row q-col-gutter-md q-px-md q-py-md" key="allCharts">
       <div class="col-md-6 col-sm-12 col-xs-12">
@@ -14,7 +14,6 @@
   </div>
 </template>
 <script setup>
-
 import reportBar from 'components/ApexCharts/BarAppointmentsChart.vue';
 import reportPie from 'components/ApexCharts/PieAppointmentsChart.vue';
 import reportLine from 'components/ApexCharts/LineChart.vue';

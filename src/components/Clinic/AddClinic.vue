@@ -73,6 +73,9 @@
               }}
             </div>
           </q-td>
+          <q-td key="active" :props="props">
+            {{ props.row.active === true ? 'Sim' : 'Não' }}
+          </q-td>
           <q-td key="actions" :props="props">
             <div class="q-gutter-sm">
               <q-btn
@@ -90,6 +93,18 @@
                   transition-hide="rotate"
                 >
                 </q-tooltip>
+              </q-btn>
+              <q-btn
+                round
+                size="sm"
+                class="q-ml-lg"
+                :color="getColorActive(props.row)"
+                :icon="getIconActive(props.row)"
+                @click.stop="promptToConfirm(props.row)"
+              >
+                <q-tooltip :class="getTooltipClass(props.row)">{{
+                  props.row.active ? 'Inactivar' : 'Activar'
+                }}</q-tooltip>
               </q-btn>
             </div>
           </q-td>
@@ -273,6 +288,8 @@ import clinicService from 'src/services/api/clinic/clinicService';
 import provinceService from 'src/services/api/province/provinceService';
 import districtService from 'src/services/api/district/districtService';
 import Clinic from '../../stores/models/clinic/Clinic';
+import { useSwal } from 'src/composables/shared/dialog/dialog';
+const { alertWarningAction, alertError, alertSucess } = useSwal();
 
 const { closeLoading } = useLoading();
 const props = defineProps(['clinic', 'backToDashBoard']);
@@ -295,7 +312,7 @@ const provinceRef = ref(null);
 const districtRef = ref(null);
 const latitudeRef = ref(null);
 const longitudeRef = ref(null);
-
+const errorStr = ref(null);
 let province = ref(null);
 let initialDistrict = 0;
 const newClinic = ref({});
@@ -322,6 +339,14 @@ let columns = [
     align: 'left',
     label: 'Distrito',
     field: (row) => row.district,
+    format: (val) => `${val}`,
+    sortable: true,
+  },
+  {
+    name: 'active',
+    align: 'left',
+    label: 'Activo',
+    field: (row) => row.name,
     format: (val) => `${val}`,
     sortable: true,
   },
@@ -367,7 +392,10 @@ const provinces = computed(() => {
 });
 
 const districts = computed(() => {
-  if (newClinic.value.province !== null) {
+  if (
+    newClinic.value.province !== null &&
+    newClinic.value.province !== undefined
+  ) {
     return districtService.getAllByProvinceId(newClinic.value.province.id);
   } else {
     return null;
@@ -390,10 +418,45 @@ const onChangeNewClinicProvincia = () => {
   newClinic.value.district = null;
 };
 
-const getLocation = () => {
+const locateMe = async (val) => {
+  // showloading();
+  console.log(val);
+  // gettingLocation.value = true;
+  try {
+    // gettingLocation.value = false;
+    location.value = await getLocation();
+    console.log(location.value);
+    newClinic.value.latitude = location.value.coords.latitude;
+    newClinic.value.longitude = location.value.coords.longitude;
+    closeLoading();
+  } catch (e) {
+    //  gettingLocation.value = false;
+    errorStr.value = e.message;
+    newClinic.value.latitude = -25.9678239;
+    newClinic.value.longitude = 32.5864914;
+    // console.log(myLocation);
+    closeLoading();
+    alertInfo(
+      'Não tem permissões ou a função de localização do dispositivo encontra-se desligada.\n Por favor dê as permissões ou ligue a localização.'
+    ).then((result) => {
+      if (result) {
+        newClinic.value.latitude = -25.9678239;
+        newClinic.value.longitude = 32.5864914;
+        console.log(myLocation);
+        closeLoading();
+      }
+    });
+  }
+};
+
+const getLocation = async (val) => {
   return new Promise((resolve, reject) => {
     if (!('geolocation' in navigator)) {
-      reject(new Error('Localização Geográfica não está disponível.'));
+      reject(
+        new Error(
+          'Localização Geográfica não está disponível. Por favor, ligue a Localização Geográfica no seu dispositivo.'
+        )
+      );
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -404,30 +467,6 @@ const getLocation = () => {
       }
     );
   });
-};
-
-const locateMe = async () => {
-  $q.loading.show({
-    spinner: QSpinnerIos,
-    message: 'Carregando a sua localização. Por favor, aguarde...',
-  });
-  try {
-    location = await getLocation();
-    newClinic.value.latitude = location.coords.latitude;
-    newClinic.value.longitude = location.coords.longitude;
-    $q.loading.hide();
-  } catch (e) {
-    $q.loading.hide();
-    $q.dialog({
-      title: 'Problema no carregamento da localização',
-      message:
-        'Não tem permissões para aceder a localização do dispositivo ou a função de localização encontra-se desligada.\n Por favor ligue a localização ou dê as permissões de localização',
-    }).onOk(() => {
-      newClinic.value.latitude = -25.9678239;
-      newClinic.value.longitude = 32.5864914;
-      $q.loading.hide();
-    });
-  }
 };
 
 const validateClinic = () => {
@@ -473,6 +512,7 @@ const submitClinic = async () => {
           message: 'Clínica registrada com sucesso.',
           color: 'teal',
         });
+        submitting.value = false;
         show_dialog.value = false;
       })
       .catch((error) => {
@@ -496,7 +536,7 @@ const submitClinic = async () => {
       });
   } else {
     await clinicService
-      .patch(newClinic.value.id, newClinic)
+      .patch(newClinic.value.id, newClinic.value)
       .then((resp) => {
         console.log(resp);
         show_dialog.value = false;
@@ -570,6 +610,53 @@ const editClinic = (clinic) => {
 const extractDatabaseCodes = () => {
   clinicos.value.forEach((element) => {
     databaseCodes.value.push(element.code);
+  });
+};
+
+const getIconActive = (clinic) => {
+  if (clinic.active) {
+    return 'toggle_off';
+  } else if (!clinic.active) {
+    return 'toggle_on';
+  }
+};
+const getColorActive = (clinic) => {
+  if (clinic.active) {
+    return 'red';
+  } else if (!clinic.active) {
+    return 'green';
+  }
+};
+const getTooltipClass = (clinic) => {
+  if (clinic.active) {
+    return 'bg-red-5';
+  } else if (!clinic.active) {
+    return 'bg-green-5';
+  }
+};
+
+const promptToConfirm = (clinicParam) => {
+  const question = clinicParam.active
+    ? 'Deseja Inactivar a Clínica?'
+    : 'Deseja Activar o Clínica?';
+
+  alertWarningAction(question).then((response) => {
+    if (response) {
+      if (clinicParam.active) {
+        clinicParam.active = false;
+      } else {
+        clinicParam.active = true;
+      }
+      clinicService
+        .patch(clinicParam.id, clinicParam)
+        .then(() => {
+          alertSucess('Clínica actualizado com sucesso.');
+        })
+        .catch(() => {
+          alertError('Aconteceu um erro inesperado ao actualizar o Clínica.');
+        });
+      // }
+    }
   });
 };
 

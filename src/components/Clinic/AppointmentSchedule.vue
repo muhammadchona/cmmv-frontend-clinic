@@ -8,8 +8,19 @@
       <UserMessage />
       <div class="row q-mt-md text-bold">
         Marcação de Consultas ({{ appointmentsPending.length }})
+        <div class="button-right q-mr-md">
+          <q-btn
+            flat
+            icon-right="refresh"
+            label="Actualizar Listas"
+            no-caps
+            @click="reloadPage"
+          />
+        </div>
       </div>
+
       <q-input filled v-model="searchText" label="Pesquisar" />
+
       <q-scroll-area style="height: 300px; max-width: auto">
         <q-list
           bordered
@@ -54,17 +65,26 @@ const searchText = ref('');
 const searchTextConfirmed = ref('');
 
 const appointmentsPending = computed(() => {
-  return appointmentService.getPendingAssignment(searchText.value)
+  return appointmentService.getPendingAssignment(searchText.value);
 });
 
 const appointmentsConfirmed = computed(() => {
   return appointmentService.getConfirmedAssignment(
     searchTextConfirmed.value,
     searchText.value
-  )
+  );
 });
 
 onMounted(() => {
-    appointmentService.get(0);
+  appointmentService.get(0);
 });
+
+const reloadPage = () => {
+  window.location.reload();
+};
 </script>
+<style>
+.button-right {
+  margin-left: auto;
+}
+</style>

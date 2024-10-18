@@ -53,10 +53,11 @@
           :label="usName"
         />
         <q-tab
-          style="border-radius: 2em; border-style: solid; border-color: white;"
+          style="border-radius: 2em; border-style: solid; border-color: white"
           name="Administração"
           icon="manage_accounts"
-          label="Administração" />
+          label="Administração"
+        />
       </q-tabs>
     </div>
     <form @submit.prevent="authUser">
@@ -117,17 +118,6 @@
             label="Entrar"
           />
         </div>
-        <div class="row q-py-lg float-right">
-          <span class="text-h7"
-            >Esqueceu as suas credenciais?
-            <q-btn
-              flat
-              style="color: #ff0080"
-              color="primary"
-              label="Clique aqui."
-              no-caps
-          /></span>
-        </div>
       </div>
     </form>
   </q-page>
@@ -180,7 +170,7 @@ const init = async () => {
 };
 
 const addLocalDbClinics = async (districtId) => {
-  return await clinicService.getAllClinicsByDistrictId(districtId)
+  return await clinicService.getAllClinicsByDistrictId(districtId);
 };
 
 const addLocalDbDistricts = () => {
@@ -249,10 +239,10 @@ const loginOnline = () => {
         addLocalDbDatas(response.data.districtId);
         submitting.value = false;
         router.push({ path: '/clinicHome/' + localStorage.getItem('idLogin') });
-      } else if(tab.value !== 'clinic'){
+      } else if (tab.value !== 'clinic') {
         buildUserToAdd(response.data);
         localStorage.setItem('id_districtUser', response.data.idLogin);
-        localStorage.setItem('id_clinicUser', 1)
+        localStorage.setItem('id_clinicUser', 1);
         submitting.value = false;
         router.push({ path: '/administrationHome/' + 1 });
       }
@@ -269,7 +259,7 @@ const loginOnline = () => {
           });
         }
         console.log(listErrors);
-      }else {
+      } else {
         Notify.create({
           icon: 'announcement',
           message: 'Utilizador sem acesso',

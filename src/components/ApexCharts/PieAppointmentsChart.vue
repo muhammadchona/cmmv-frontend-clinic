@@ -1,8 +1,16 @@
 <template>
+  <div class="q-gutter-md q-mb-md row items-center justify-end">
+    <q-btn
+      label="Baixar Relatório"
+      @click="downloadChart"
+      color="primary"
+    ></q-btn>
+  </div>
   <div
     style="width: 1200px; min-height: 200px; linear-gradient( 135deg, #343E59 10%, #2B2D3E 40%)"
   >
     <VueApexCharts
+      ref="chartRef"
       style="max-width: 50%"
       type="donut"
       :options="chartOptions"
@@ -13,9 +21,11 @@
 
 <script setup>
 import VueApexCharts from 'vue3-apexcharts';
-import {ref, computed} from 'vue'
+import { ref, computed } from 'vue';
 import appointmentService from 'src/services/api/appointment/appointmentService';
-
+import DownloadFileMobile from 'src/utils/DownloadFileMobile';
+import moment from 'moment';
+const chartRef = ref(null);
 const chartOptions = {
   labels: [
     'Consultas Pendentes',
@@ -82,20 +92,46 @@ const getAppointmentsNumber = () => {
 };
 
 const appointmentsPending = computed(() => {
- return  appointmentService.appointmentsPendingReports()
+  return appointmentService.appointmentsPendingReports();
 });
 
 const appointmentsDone = computed(() => {
-
-  return appointmentService.appointmentsDoneReports()
+  return appointmentService.appointmentsDoneReports();
 });
 
 const appointmentsConfirmed = computed(() => {
-     return appointmentService.appointmentsConfirmedReports()
+  return appointmentService.appointmentsConfirmedReports();
 });
 const series = computed(() => {
   //   var series = [11, 32, 45, 32]
   const series = getAppointmentsNumber();
   return series;
 });
+
+const downloadChart = () => {
+  // Generate the image URI for the chart
+  if (chartRef.value) {
+    // Access chart instance and trigger download
+    chartRef.value.dataURI().then(({ imgURI }) => {
+      // Call the Cordova File plugin to save the image
+      // downloadFileToDevice(imgURI, 'chart.png');
+      const blob = dataURItoBlob(imgURI);
+      const titleFile =
+        'PieChart' + moment(new Date()).format('DD-MM-YYYY_HHmmss');
+      DownloadFileMobile.downloadFile(titleFile, '.jpg', blob);
+    });
+  }
+};
+
+// Helper function to convert Data URL to Blob
+const dataURItoBlob = (dataURI) => {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+};
 </script>

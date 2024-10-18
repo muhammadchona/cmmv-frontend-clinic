@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://dev.fgh.org.mz:4110/api',
+  // baseURL: 'http://dev.fgh.org.mz:4110/api',
+  baseURL: 'https://vmmcgd.csaude.org.mz:443/api',
   // baseURL: 'http://192.168.1.13:8882/api',
 });
 // Request interceptor for API calls
